@@ -30,7 +30,8 @@ A clean, minimal encoder-decoder sequence-to-sequence model built on components 
 ## Dependencies
 
 - Python 
-- PyTorch 
+- PyTorch
+- pytest
 - `Rougeformer.py` must be in the Python path (defines `TransformerEncoderLayer`, `GQA_RoPE_Attention`, and `RMSNorm`)
 
 ---
@@ -84,6 +85,9 @@ generated = model.generate(
 )
 # Returns [B, T_generated]
 ```
+### 4. Unit Test
+
+`pytest -v test_models.py`
 
 ---
 
