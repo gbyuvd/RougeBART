@@ -25,6 +25,8 @@ A clean, minimal encoder-decoder sequence-to-sequence model built on components 
 
 - **Robust Mask Handling**: Converts padding masks to finite additive attention masks (using `-1e4` instead of `-inf`) to avoid NaNs during training.
 
+![Losscomparison](loss_comparison.png)
+![PPLcomparison](ppl_comparison.png)
 ---
 
 ## Dependencies
