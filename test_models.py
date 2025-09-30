@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import math
 from Rougeformer import Rougeformer, GQA_RoPE_Attention, to_additive_mask
-from RhoBART import RhoBARTClean
+from RougeBART import RougeBART
 
 
 def test_mask_conversion():
@@ -35,7 +35,7 @@ def test_rougeformer_forward(batch_size, seq_len, vocab_size):
 
 @pytest.mark.parametrize("batch_size, src_len, tgt_len, vocab_size", [(2, 16, 10, 1000)])
 def test_rhobart_forward(batch_size, src_len, tgt_len, vocab_size):
-    model = RhoBARTClean(vocab_size=vocab_size, num_layers=2, hidden_size=64)
+    model = RougeBART(vocab_size=vocab_size, num_layers=2, hidden_size=64)
     src = torch.randint(0, vocab_size, (batch_size, src_len))
     tgt = torch.randint(0, vocab_size, (batch_size, tgt_len))
     out = model(input_ids=src, labels=tgt)
@@ -57,7 +57,7 @@ def test_rope_attention_shapes():
 
 def test_rhobart_generate_runs():
     vocab_size = 1000
-    model = RhoBARTClean(vocab_size=vocab_size, num_layers=2, hidden_size=64)
+    model = RougeBART(vocab_size=vocab_size, num_layers=2, hidden_size=64)
     src = torch.randint(0, vocab_size, (2, 8))
     out = model.generate(src, max_new_tokens=5, do_sample=False)
     assert out.shape == (2, 5)
@@ -72,7 +72,7 @@ def test_models_on_cuda():
     assert out.shape == (2, 16, 500)
 
 def test_gradient_clipping_check():
-    model = RhoBARTClean(vocab_size=100, num_layers=2, hidden_size=32)
+    model = RougeBART(vocab_size=100, num_layers=2, hidden_size=32)
     src = torch.randint(0, 100, (2, 8))
     tgt = torch.randint(0, 100, (2, 6))
     out = model(input_ids=src, labels=tgt)
@@ -111,3 +111,4 @@ def test_rougeformer_gradient_utils(capsys):
     assert "[Rougeformer]" in captured.out
     assert "loss=" in captured.out
     assert "grad_norm=" in captured.out
+
