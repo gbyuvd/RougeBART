@@ -99,6 +99,89 @@ generated = model.generate(
 - Dropout is applied in the FFN intermediate layer and after attention outputs.
 - Positional information is injected via **RoPE**, not learned embeddings.
 
+```
+Rougeformer = stacked encoder blocks + tied head  
+RougeBART   = same encoder + almost-same decoder (add cross-attn, causal self-attn, kv-cache)
+
+Legend
+======
+|  op  |  shape (batch, seq, dim)  |  comment
+-------------------------------------------------
+  Emb   (B, L, D)     token embedding  (weight-tied to lm_head)
+  +     residual add
+  RMS   RMSNorm
+  GQA   GQA-RoPE multi-head attention (sliding-window + optional globals)
+  FFN   SwiGLU style: Linear▶GELU▶Linear
+  Mask  additive mask: 0 = keep, −1e4 = drop
+  CA    cross-attention (decoder only)
+  ◀━    kv-cache hook (decode only)
+```
+
+Rougeformer (encoder-only, causal-LM)
+```
+input_ids
+   │
+   ▼
+  Emb ──Dropout─┐
+   │            │
+   ▼            │
+  RMS            │
+   │            │
+   GQA ──Mask───┼──(sliding window + global positions)
+   │            │
+   ▼            │
+   FFN          │
+   │            │
+   ▼            │
+   + ◀━━━━━━━━━━┘   (residual around whole block)
+   │
+   ▼
+  RMS (final)
+   │
+   ▼
+ lm_head  (weight = Emb.weight)
+   │
+   ▼
+logits / loss
+Repeat the “RMS ▶ GQA ▶ FFN ▶ +” block N times (default 8).
+```
+
+RougeBART (encoder-decoder)
+Encoder (identical to Rougeformer layers, but bidirectional):
+```
+input_ids ──Emb──Dropout──►┌──────────┐
+                           │  RMS     │
+                           │  GQA ──Mask (no causal, window OK)
+                           │  FFN     │
+                           └─▲──┬──▲─┘
+                             │  │  │      repeat N layers
+                             └──+──┘
+                                │
+                             RMS (norm)
+                                │
+                         encoder_hidden_states
+```
+Decoder (causal, cross-attends to encoder):
+```
+decoder_input_ids ──Emb──Dropout──►┌──────────────┐
+                                   │  RMS         │
+                                   │  GQA ─Causal─Mask ◀━ kv-cache
+                                   │  +           │
+                                   │  RMS         │
+                                   │  CA ───────────────┐
+                                   │  +           │     │ encoder_hidden_states
+                                   │  RMS         │     │
+                                   │  FFN         │     │
+                                   └─▲──┬──▲─────┘     │
+                                     │  │  │            │  repeat N layers
+                                     └──+──┘            │
+                                        │               │
+                                     RMS (norm)         │
+                                        │               │
+                                    lm_head (tied)      │
+                                        │               │
+                                     logits / loss ◀━━━━┘
+```
 ---
 
 ## Limitations
