@@ -27,6 +27,39 @@ A clean, minimal encoder-decoder sequence-to-sequence model built on components 
 
 ![Losscomparison](loss_comparison.png)
 ![PPLcomparison](ppl_comparison.png)
+
+```
+======================================================================
+📊 Parameter Comparison:
+RougeBART: 15,656,960
+BART       : 17,599,360
+Difference: 1,942,400 (12.41%)
+GFLOPs per layer (B=1, L=128)
+----------------------------------------
+RougeBART     enc: 0.168  dec: 0.231
+BART          enc: 0.168  dec: 0.231
+----------------------------------------
+encoder Δ = 0.00%   decoder Δ = 0.00%
+======================================================================
+FINAL RESULTS (10% data, 1 epoch)
+======================================================================
+RougeBART:
+  - Final Eval Loss: 1.2106
+  - Final Perplexity: 3.36
+  - Total Train Steps: 792
+  - Parameters: 15,656,960
+
+BART:
+  - Final Eval Loss: 1.1726
+  - Final Perplexity: 3.23
+  - Total Train Steps: 792
+  - Parameters: 17,599,360
+
+📊 Difference:
+  - Loss Difference: 0.0380
+  - PPL Difference: 0.12
+======================================================================
+```
 ---
 
 ## Dependencies
