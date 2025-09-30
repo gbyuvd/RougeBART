@@ -40,6 +40,11 @@ RougeBART     enc: 0.168  dec: 0.231
 BART          enc: 0.168  dec: 0.231
 ----------------------------------------
 encoder Δ = 0.00%   decoder Δ = 0.00%
+RougeBART: [27:50]
+[RougeBART] Epoch 1 | Train Loss: 1.4905 | Eval Loss: 1.2106 | PPL: 3.36
+
+BART: [18:51]
+[BART] Epoch 1 | Train Loss: 2.1677 | Eval Loss: 1.1726 | PPL: 3.23
 ======================================================================
 FINAL RESULTS (10% data, 1 epoch)
 ======================================================================
